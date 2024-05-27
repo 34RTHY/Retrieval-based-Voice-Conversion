@@ -1,0 +1,7 @@
+av
+faiss-gpu
+scipy
+python-dotenv
+sounddevice
+soundfile
+torch
