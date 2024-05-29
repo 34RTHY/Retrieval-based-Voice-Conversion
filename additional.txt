@@ -1,6 +1,0 @@
-Arona_President
-bark
-assests
-docs
-rvc
-venv

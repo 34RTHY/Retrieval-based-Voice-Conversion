@@ -4,9 +4,11 @@ __pycache__/
 *$py.class
 
 .DS_Store
-Arona_President
-bark
-assests
-docs
-rvc
+added_IVF1210_Flat_nprobe_1_Arona_President_v2.index
+Arona_President.pth
+bark_generation.wav
+Bluearchive.wav
 venv
+hubert_base.pt
+rmvpe.pt
+ffmpeg.exe
