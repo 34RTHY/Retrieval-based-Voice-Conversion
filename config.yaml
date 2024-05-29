@@ -1,0 +1,14 @@
+vc_inference:
+  sid: 0
+  f0_up_key: 3
+  f0_method: 'rmvpe'
+  filter_radius: 3
+  resample_sr: 0
+  rms_mix_rate: 0.25
+  protect: 0.33
+  index_file: null
+  index_rate: 0.75
+  hubert_path: 'models/hubert_base.pt'
+
+audio_speed:
+  speed: 1.10

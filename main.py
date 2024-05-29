@@ -13,6 +13,7 @@ import traceback
 import librosa
 import numpy as np
 import time
+import yaml
 
 SAMPLE_RATE = 22050
 
@@ -23,17 +24,34 @@ def check_gpu():
     else:
         print("GPU is not available.")
 
+def read_config(file_path):
+    with open(file_path, 'r') as file:
+        return yaml.safe_load(file)
+
 def GenerateTTS():
-    # download and load all models
+    # Download and load all models
     preload_models()
 
-    # generate audio from text
+    # Generate audio from text
     text_prompt = """
-    私の名前は吉良良景です。 私は33歳です。 私の家はすべての別荘がある森王の北東部にあり、私は結婚していません。
+    様々な授業やイベントが準備されているので、ご希望のスケジュールを選んでください！
     """
     audio_array = generate_audio(text_prompt, history_prompt='v2/ja_speaker_3')
-    write_wav("BarkGeneration/bark_generation.wav", SAMPLE_RATE, audio_array)
-    return "BarkGeneration/bark_generation.wav"
+
+    # Read configuration
+    config_path = 'config.yaml'
+    config = read_config(config_path)
+
+    # Change speed
+    speed_params = config['audio_speed']
+    speed_multiplier = speed_params['speed']
+    audio_array = change_speed(audio_array, speed_multiplier)
+
+    # Write the modified audio to file
+    output_path = "BarkGeneration/bark_generation.wav"
+    write_wav(output_path, SAMPLE_RATE, audio_array)
+
+    return output_path
 
 def check_audio_file_exists(filepath):
     return os.path.isfile(filepath)
@@ -70,6 +88,10 @@ def find_first_x_file(folder_path,file_type):
                 return os.path.join(root, file)
     return None
 
+def change_speed(audio, speed_multiplier):
+    indices = np.round(np.arange(0, len(audio), speed_multiplier)).astype(int)
+    indices = indices[indices < len(audio)]
+    return audio[indices]
 
 def main():
     start_time = time.time()
@@ -128,18 +150,21 @@ def main():
         # index_file = find_first_x_file('Arona_President','.index')
 
         print("Starting vc_inference...")
+        config_path = 'config.yaml'
+        config = read_config(config_path)
+        vc_inference_params = config['vc_inference']
         tgt_sr, audio_opt, times, info = vc.vc_inference(
-            sid=0,
+            sid=vc_inference_params['sid'],
             input_audio_path=input_audio_path,
-            f0_up_key=3,
-            f0_method = 'rmvpe',
-            filter_radius = 3,
-            resample_sr = 0,
-            rms_mix_rate = 0.25,
-            protect = 0.33,
-            index_file = None,
-            index_rate = 0.75,
-            hubert_path = hubert_path,
+            f0_up_key=vc_inference_params['f0_up_key'],
+            f0_method=vc_inference_params['f0_method'],
+            filter_radius=vc_inference_params['filter_radius'],
+            resample_sr=vc_inference_params['resample_sr'],
+            rms_mix_rate=vc_inference_params['rms_mix_rate'],
+            protect=vc_inference_params['protect'],
+            index_file=vc_inference_params['index_file'],
+            index_rate=vc_inference_params['index_rate'],
+            hubert_path=vc_inference_params['hubert_path']
         )
         
         print("vc_inference completed.")
